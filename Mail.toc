@@ -3,5 +3,5 @@
 ## Notes: Mailbox enhancement
 ## Author: shirsig
 ## SavedVariablesPerCharacter: Mail_To
-## SavedVariables: Mail_AutoCompleteNames
+## SavedVariables: Mail_AutoCompleteNames, Mail_RecentSenders
 Mail.xml

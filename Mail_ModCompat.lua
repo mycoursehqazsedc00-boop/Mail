@@ -29,13 +29,32 @@ do
 	-- Feature 1: ClassicAPI -- chat-link the item as each piece of mail
 	-- is auto-looted (Inbox_Open is shared by both the "Open AH" and
 	-- "Open All" buttons, so this covers both).
+	--
+	-- Dedupe note: Inbox_Open(i) does NOT advance i itself -- the caller
+	-- only advances i on the "skip" branch, relying on the letter at slot
+	-- i disappearing once the server confirms the delete. Inbox_Open(i)
+	-- fires three separate server requests (TakeInboxMoney, TakeInboxItem,
+	-- DeleteInboxItem); if the ack for one of the earlier two triggers
+	-- MAIL_INBOX_UPDATE before the delete has actually cleared slot i, the
+	-- caller re-checks the same still-present letter and calls
+	-- Inbox_Open(i) again before it's gone. That resend was always a
+	-- harmless no-op (already-emptied slot), which is why it never showed
+	-- up before -- but GetInboxItemLink(i) still resolves the same item,
+	-- so this print needs to explicitly suppress a same-index repeat
+	-- rather than assume one call == one letter.
 	----------------------------------------------------------------------
 	local orig_Inbox_Open = Mail.Inbox_Open
+	local lastIndex, lastLink, lastTime
 	Mail.Inbox_Open = function(i, ...)
 		if GetInboxItemLink then
 			local ok, link = pcall(GetInboxItemLink, i)
 			if ok and link then
-				DEFAULT_CHAT_FRAME:AddMessage('Mail: looted ' .. link, 0.41, .8, .94)
+				local isRepeat = i == lastIndex and link == lastLink
+					and lastTime and (GetTime() - lastTime < 3)
+				if not isRepeat then
+					DEFAULT_CHAT_FRAME:AddMessage('Mail: looted ' .. link, 0.41, .8, .94)
+				end
+				lastIndex, lastLink, lastTime = i, link, GetTime()
 			end
 		end
 		return orig_Inbox_Open(i, ...)

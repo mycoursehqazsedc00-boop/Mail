@@ -2,6 +2,7 @@
 C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 	<Script file="Mail.lua"/>
 	<Script file="Mail_ModCompat.lua"/>
+	<Script file="Mail_RecentSenders.lua"/>
 
 	<Button name="MailAutoCompleteButtonTemplate" virtual="true">
 		<Size>
