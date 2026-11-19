@@ -443,6 +443,13 @@ do
 			end
 		elseif event == "MAIL_SHOW" or event == "MAIL_INBOX_UPDATE" then
 			ScanInbox(event)
+			if InboxFrame and InboxFrame:IsVisible() and InboxFrame_Update and GetInboxNumItems then
+				local num = GetInboxNumItems()
+				if num and num > 0 and InboxTitleText and InboxTitleText:GetText() == "Inbox [Empty]" then
+					Trace("Refreshed stuck Inbox [Empty] UI on " .. tostring(event) .. " (num=" .. num .. ")")
+					InboxFrame_Update()
+				end
+			end
 		elseif event == "MAIL_CLOSED" then
 			if mailMenu and mailMenu:IsVisible() then
 				mailMenu:Hide()
